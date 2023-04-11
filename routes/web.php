@@ -17,13 +17,21 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/test', [TestController::class, 'test'])->name('test');
-Route::post('/post', [PostController::class, 'store'])->name('post.store');
 
 //postの一覧表示のルート設定
-//Route::middleware(['auth', 'admin'])->group(function () {
-Route::get('/post', [PostController::class, 'index'])->name('post.index');
-Route::get('/post/create', [PostController::class, 'create']);
-//});
+Route::middleware(['auth'])->group(function () {
+    Route::get('/post', [PostController::class, 'index'])->name('post.index');
+    Route::post('/post', [PostController::class, 'store'])->name('post.store');
+    Route::get('/post/create', [PostController::class, 'create']);
+//    showメソッドのルート
+    Route::get('/post/show/{post}', [PostController::class, 'show'])->name('post.show');
+//    個別投稿記事の編集画面
+    Route::get('/post/{post}/edit', [PostController::class, 'edit'])->name('post.edit');
+//    個別投稿記事の更新
+    Route::patch('/post/{post}', [PostController::class, 'update'])->name('post.update');
+//    個別投稿記事の削除
+    Route::delete('/post/{post}', [PostController::class, 'destroy'])->name('post.destroy');
+});
 
 
 Route::get('/', function () {
