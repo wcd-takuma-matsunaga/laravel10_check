@@ -5,29 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Illuminate\Http\Request;
 
-class PostController extends Controller
+class OldPostController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $posts = Post::all();
+//        Eagerローディングしてuser_idがログインユーザーのものを取得
+        $posts = Post::with('user')->where('user_id', auth()->id())->get();
 
         return view('post.index', compact('posts'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('post.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -35,32 +27,26 @@ class PostController extends Controller
             'body' => 'required|max:400',
         ]);
 
-        $validated['user_id'] = auth()->user()->id;
+        $validated['user_id'] = auth()->id();
 
         $post = Post::create($validated);
 
-        return redirect()->route('post.index')->with('message', '保存しました');
+        return back()->with('message', '保存しました');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Post $post)
+    public function show($id)
     {
+        $post = Post::find($id);
         return view('post.show', compact('post'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+//    個別投稿記事の編集画面
     public function edit(Post $post)
     {
         return view('post.edit', compact('post'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+//    個別投稿記事の更新
     public function update(Request $request, Post $post)
     {
         $validated = $request->validate([
@@ -68,20 +54,17 @@ class PostController extends Controller
             'body' => 'required|max:400',
         ]);
 
-        $validated['user_id'] = auth()->user()->id;
+        $validated['user_id'] = auth()->id();
 
         $post->update($validated);
 
-        return redirect()->route('post.show', compact('post'))->with('message', '更新しました');
+        return back()->with('message', '更新しました');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+//    個別投稿記事の削除
     public function destroy(Post $post)
     {
         $post->delete();
-
         return redirect()->route('post.index')->with('message', '削除しました');
     }
 }
